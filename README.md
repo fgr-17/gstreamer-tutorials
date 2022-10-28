@@ -1,6 +1,6 @@
 # Gstreamer Tutorials
 
-This is a public repository that contains Gstreamer Tutorials and some makefiles
+This is a  repository that contains [Gstreamer Tutorials](https://gstreamer.freedesktop.org/documentation/tutorials/index.html) and some makefiles
 
 ## Installation
 
