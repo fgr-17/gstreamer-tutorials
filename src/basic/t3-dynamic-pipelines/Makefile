@@ -4,6 +4,7 @@ BUILD_DIR := bin
 SRC_DIRS := ./
 
 CC := gcc
+CXX := g++
 
 SRCS := $(shell find $(SRC_DIRS) -name '*.cpp' -or -name '*.c' -or -name '*.s')
 OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
@@ -18,7 +19,7 @@ LDFLAGS := `pkg-config --cflags --libs gstreamer-1.0`
 # The final build step.
 all: 
 	@mkdir -p $(BUILD_DIR)
-	$(CC) $(SRCS) -o $(BUILD_DIR)/$(TARGET_EXEC) $(LDFLAGS)
+	$(CXX) $(SRCS) -o $(BUILD_DIR)/$(TARGET_EXEC) $(LDFLAGS)
 
 .PHONY: clean
 clean:
