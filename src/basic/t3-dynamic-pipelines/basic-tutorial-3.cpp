@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
   data.resample = gst_element_factory_make ("audioresample", "resample");
   data.sink = gst_element_factory_make ("autoaudiosink", "sink");
 
-  data.videoconvert = gst_element_factory_make ("videoconvert", "videoconvert");
+  data.videoconvert = gst_element_factory_make ("autovideoconvert", "videoconvert");
   data.videosink = gst_element_factory_make ("autovideosink", "videosink");
 
 
@@ -129,7 +129,8 @@ int main(int argc, char *argv[]) {
 
 /* This function will be called by the pad-added signal */
 static void pad_added_handler (GstElement *src, GstPad *new_pad, CustomData *data) {
-  GstPad *sink_pad = gst_element_get_static_pad (data->convert, "sink");
+  GstPad *sink_pad = NULL;
+  GstPad *audiosink_pad = gst_element_get_static_pad (data->convert, "sink");
   GstPad *videosink_pad = gst_element_get_static_pad (data->videoconvert, "videosink");
 
   GstPadLinkReturn ret;
@@ -137,16 +138,19 @@ static void pad_added_handler (GstElement *src, GstPad *new_pad, CustomData *dat
   GstStructure *new_pad_struct = NULL;
   const gchar *new_pad_type = NULL;
 
+  std::cout << "received pad is pad?: " << GST_IS_PAD(new_pad) << std::endl;
+  std::cout << "audiosink pad is pad?: " << GST_IS_PAD(audiosink_pad) << std::endl;
+  std::cout << "videosink pad is pad?: " << GST_IS_PAD(videosink_pad) << std::endl;
+
   g_print ("Received new pad '%s' from '%s':\n", GST_PAD_NAME (new_pad), GST_ELEMENT_NAME (src));
 
   /* If our converter is already linked, we have nothing to do here */
-  if (gst_pad_is_linked (sink_pad)) {
+  if (gst_pad_is_linked (audiosink_pad) || gst_pad_is_linked (videosink_pad)) {
     g_print ("We are already linked. Ignoring.\n");
     /* Unreference the new pad's caps, if we got them */
-
-    /* Unreference the sink pad */
-    gst_object_unref (sink_pad);
-    gst_object_unref (videosink_pad);
+    if (new_pad_caps != NULL) gst_caps_unref (new_pad_caps);
+    if (videosink_pad != NULL) gst_object_unref (videosink_pad);
+    if (audiosink_pad != NULL) gst_object_unref (audiosink_pad);
     return;
   }
 
@@ -154,40 +158,29 @@ static void pad_added_handler (GstElement *src, GstPad *new_pad, CustomData *dat
   new_pad_caps = gst_pad_get_current_caps (new_pad);
   new_pad_struct = gst_caps_get_structure (new_pad_caps, 0);
   new_pad_type = gst_structure_get_name (new_pad_struct);
-
-  if(g_str_has_prefix (new_pad_type, "audio/x-raw")) {
-    /* Attempt the link */
-    ret = gst_pad_link (new_pad, sink_pad);
-  } 
-  else if(g_str_has_prefix (new_pad_type, "video/x-raw")) {
-    /* Attempt the link */
-    ret = gst_pad_link (new_pad, videosink_pad);
+  if (g_str_has_prefix (new_pad_type, "audio/x-raw")) {
+    sink_pad = audiosink_pad;
+  }
+  else if (g_str_has_prefix (new_pad_type, "video/x-raw")) {
+    sink_pad = videosink_pad;
   }
   else {
-    g_print ("It has type '%s' which is not raw audio or raw video. Ignoring.\n", new_pad_type);
-    /* Unreference the new pad's caps, if we got them */
-    if (new_pad_caps != NULL)
-      gst_caps_unref (new_pad_caps);
-
-    /* Unreference the sink pad */
-    gst_object_unref (sink_pad);
-    gst_object_unref (videosink_pad);
-    return;  
+    g_print ("It has type '%s' which is not raw audio. Ignoring.\n", new_pad_type);
+    if (new_pad_caps != NULL) gst_caps_unref (new_pad_caps);
+    if (videosink_pad != NULL) gst_object_unref (videosink_pad);
+    if (audiosink_pad != NULL) gst_object_unref (audiosink_pad);
+    return;
   }
 
+  /* Attempt the link */
+  ret = gst_pad_link (new_pad, sink_pad);
   if (GST_PAD_LINK_FAILED (ret)) {
     g_print ("Type is '%s' but link failed.\n", new_pad_type);
   } else {
     g_print ("Link succeeded (type '%s').\n", new_pad_type);
-    return;
   }
 
-  /* Unreference the new pad's caps, if we got them */
-  if (new_pad_caps != NULL)
-    gst_caps_unref (new_pad_caps);
-
-  /* Unreference the sink pad */
-  gst_object_unref (sink_pad);
-  gst_object_unref (videosink_pad);
-  return;
+  if (new_pad_caps != NULL) gst_caps_unref (new_pad_caps);
+  if (videosink_pad != NULL) gst_object_unref (videosink_pad);
+  if (audiosink_pad != NULL) gst_object_unref (audiosink_pad);
 }
