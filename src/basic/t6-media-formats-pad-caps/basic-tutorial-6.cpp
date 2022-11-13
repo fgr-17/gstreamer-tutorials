@@ -1,3 +1,4 @@
+#include <string>
 #include <gst/gst.h>
 
 /* Functions below print the Capabilities in a human-friendly format */
@@ -44,7 +45,7 @@ static void print_pad_templates_information (GstElementFactory * factory) {
 
   pads = gst_element_factory_get_static_pad_templates (factory);
   while (pads) {
-    padtemplate = pads->data;
+    padtemplate = static_cast<GstStaticPadTemplate*>(pads->data);
     pads = g_list_next (pads);
 
     if (padtemplate->direction == GST_PAD_SRC)
@@ -77,14 +78,14 @@ static void print_pad_templates_information (GstElementFactory * factory) {
 }
 
 /* Shows the CURRENT capabilities of the requested pad in the given element */
-static void print_pad_capabilities (GstElement *element, gchar *pad_name) {
+static void print_pad_capabilities (GstElement *element, std::string pad_name) {
   GstPad *pad = NULL;
   GstCaps *caps = NULL;
 
   /* Retrieve pad */
-  pad = gst_element_get_static_pad (element, pad_name);
+  pad = gst_element_get_static_pad (element, pad_name.c_str());
   if (!pad) {
-    g_printerr ("Could not retrieve pad '%s'\n", pad_name);
+    g_printerr ("Could not retrieve pad '%s'\n", pad_name.c_str());
     return;
   }
 
@@ -94,7 +95,7 @@ static void print_pad_capabilities (GstElement *element, gchar *pad_name) {
     caps = gst_pad_query_caps (pad, NULL);
 
   /* Print and free */
-  g_print ("Caps for the %s pad:\n", pad_name);
+  g_print ("Caps for the %s pad:\n", pad_name.c_str());
   print_caps (caps, "      ");
   gst_caps_unref (caps);
   gst_object_unref (pad);
@@ -156,8 +157,8 @@ int main(int argc, char *argv[]) {
   /* Wait until error, EOS or State Change */
   bus = gst_element_get_bus (pipeline);
   do {
-    msg = gst_bus_timed_pop_filtered (bus, GST_CLOCK_TIME_NONE, GST_MESSAGE_ERROR | GST_MESSAGE_EOS |
-        GST_MESSAGE_STATE_CHANGED);
+    msg = gst_bus_timed_pop_filtered (bus, GST_CLOCK_TIME_NONE, static_cast<GstMessageType>(GST_MESSAGE_ERROR | GST_MESSAGE_EOS |
+        GST_MESSAGE_STATE_CHANGED));
 
     /* Parse message */
     if (msg != NULL) {
