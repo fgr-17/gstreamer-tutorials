@@ -1,6 +1,8 @@
 #include <iostream>
 #include <gst/gst.h>
 
+#include "gst-utils.h"
+
 void print_all_structs_from_caps (GstCaps * caps);
 
 /* Structure to contain all our information, so we can pass it to callbacks */
@@ -34,8 +36,20 @@ int main(int argc, char *argv[]) {
   data.resample = gst_element_factory_make ("audioresample", "resample");
   data.sink = gst_element_factory_make ("autoaudiosink", "sink");
 
-  data.videoconvert = gst_element_factory_make ("autovideoconvert", "videoconvert");
-  data.videosink = gst_element_factory_make ("autovideosink", "videosink");
+  // data.videoconvert = gst_element_factory_make ("autovideoconvert", "videoconvert");
+  // data.videosink = gst_element_factory_make ("autovideosink", "videosink");
+
+  auto videoconvert_factory =  gst_element_factory_find ("autovideoconvert");
+  auto videosink_factory =  gst_element_factory_find ("autovideosink");
+  g_print("================ autovideoconvert pad info: ================\n");
+  gst_utils::print_pad_templates_information(videoconvert_factory);
+  g_print("================ autovideosink pad info: ================\n");
+  gst_utils::print_pad_templates_information(videosink_factory);
+
+  data.videoconvert = gst_element_factory_create (videoconvert_factory, "vconvert");
+  data.videosink = gst_element_factory_create(videosink_factory, "vsink");
+
+
 
 
   /* Create the empty pipeline */
