@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
 static void pad_added_handler (GstElement *src, GstPad *new_pad, CustomData *data) {
   GstPad *sink_pad = NULL;
   GstPad *audiosink_pad = gst_element_get_static_pad (data->convert, "sink");
-  GstPad *videosink_pad = gst_element_get_static_pad (data->videoconvert, "videosink");
+  GstPad *videosink_pad = gst_element_get_static_pad (data->videoconvert, "sink");
 
   GstPadLinkReturn ret;
   GstCaps *new_pad_caps = NULL;
@@ -159,7 +159,7 @@ static void pad_added_handler (GstElement *src, GstPad *new_pad, CustomData *dat
   g_print ("Received new pad '%s' from '%s':\n", GST_PAD_NAME (new_pad), GST_ELEMENT_NAME (src));
 
   /* If our converter is already linked, we have nothing to do here */
-  if (gst_pad_is_linked (audiosink_pad) || gst_pad_is_linked (videosink_pad)) {
+  if (gst_pad_is_linked (audiosink_pad) && gst_pad_is_linked (videosink_pad)) {
     g_print ("We are already linked. Ignoring.\n");
     /* Unreference the new pad's caps, if we got them */
     if (new_pad_caps != NULL) gst_caps_unref (new_pad_caps);
