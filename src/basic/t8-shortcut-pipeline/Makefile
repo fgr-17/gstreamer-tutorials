@@ -12,9 +12,9 @@ OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 INC_DIRS := $(shell find $(SRC_DIRS) -type d)
 INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-CPPFLAGS := $(INC_FLAGS) -MMD -MP `pkg-config --cflags --libs gstreamer-1.0`
+CPPFLAGS := $(INC_FLAGS) -MMD -MP `pkg-config --cflags --libs gstreamer-1.0 gstreamer-audio-1.0`
 CFLAGS := $(INC_FLAGS) 
-LDFLAGS := `pkg-config --cflags --libs gstreamer-1.0`
+LDFLAGS := `pkg-config --cflags --libs gstreamer-1.0 gstreamer-audio-1.0`
 
 # The final build step.
 all: 
