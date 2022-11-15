@@ -1,3 +1,19 @@
 # Note
 
-Changing the playback rate might only work with local files. If you cannot modify it, try changing the URI passed to playbin in line 114 to a local URI, starting with file:///
+Make sure you have cmake and make:
+
+```bash
+
+sudo apt update && apt install cmake make
+
+```
+
+Create a /bin or /build folder please! do not build on this tutorial root folder. Then run cmake and make.
+
+```bash
+
+mkdir -p build
+cd build
+cmake .. && make
+
+```
