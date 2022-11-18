@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
   g_object_set (pipeline, "flags", flags, NULL);
 
   /* Uncomment this line to limit the amount of downloaded data */
-  /* g_object_set (pipeline, "ring-buffer-max-size", (guint64)4000000, NULL); */
+  g_object_set (pipeline, "ring-buffer-max-size", (guint64)4000000, NULL);
 
   /* Start playing */
   ret = gst_element_set_state (pipeline, GST_STATE_PLAYING);
