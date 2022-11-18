@@ -6,7 +6,7 @@ typedef enum {
 } GstPlayFlags;
 
 /* Return TRUE if this is a Visualization element */
-static gboolean filter_vis_features (GstPluginFeature *feature, gpointer data) {
+static gboolean filter_vis_features (GstPluginFeature *feature, __attribute__((unused)) gpointer data) {
   GstElementFactory *factory;
 
   if (!GST_IS_ELEMENT_FACTORY (feature))
@@ -76,7 +76,7 @@ int main(int argc, char *argv[]) {
 
   /* Wait until error or EOS */
   bus = gst_element_get_bus (pipeline);
-  msg = gst_bus_timed_pop_filtered (bus, GST_CLOCK_TIME_NONE, GST_MESSAGE_ERROR | GST_MESSAGE_EOS);
+  msg = gst_bus_timed_pop_filtered (bus, GST_CLOCK_TIME_NONE, static_cast<GstMessageType>(GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
 
   /* Free resources */
   if (msg != NULL)
