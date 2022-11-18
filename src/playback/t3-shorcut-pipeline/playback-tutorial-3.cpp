@@ -68,7 +68,7 @@ static gboolean push_data (CustomData *data) {
 
 /* This signal callback triggers when appsrc needs data. Here, we add an idle handler
  * to the mainloop to start pushing data into the appsrc */
-static void start_feed (GstElement *source, guint size, CustomData *data) {
+static void start_feed (__attribute__((unused)) GstElement *source, __attribute__((unused)) guint size, CustomData *data) {
   if (data->sourceid == 0) {
     g_print ("Start feeding\n");
     data->sourceid = g_idle_add ((GSourceFunc) push_data, data);
@@ -77,7 +77,7 @@ static void start_feed (GstElement *source, guint size, CustomData *data) {
 
 /* This callback triggers when appsrc has enough data and we can stop sending.
  * We remove the idle handler from the mainloop */
-static void stop_feed (GstElement *source, CustomData *data) {
+static void stop_feed (__attribute__((unused)) GstElement *source, CustomData *data) {
   if (data->sourceid != 0) {
     g_print ("Stop feeding\n");
     g_source_remove (data->sourceid);
@@ -86,7 +86,7 @@ static void stop_feed (GstElement *source, CustomData *data) {
 }
 
 /* This function is called when an error message is posted on the bus */
-static void error_cb (GstBus *bus, GstMessage *msg, CustomData *data) {
+static void error_cb (__attribute__((unused)) GstBus *bus, GstMessage *msg, CustomData *data) {
   GError *err;
   gchar *debug_info;
 
@@ -102,7 +102,7 @@ static void error_cb (GstBus *bus, GstMessage *msg, CustomData *data) {
 
 /* This function is called when playbin has created the appsrc element, so we have
  * a chance to configure it. */
-static void source_setup (GstElement *pipeline, GstElement *source, CustomData *data) {
+static void source_setup (__attribute__((unused)) GstElement *pipeline, GstElement *source, CustomData *data) {
   GstAudioInfo info;
   GstCaps *audio_caps;
 

@@ -18,12 +18,17 @@ playback-tutorial-3.cpp)
 message("App name: " ${app_name})
 
 find_package(PkgConfig REQUIRED)
+
 pkg_check_modules(GSTREAMER REQUIRED IMPORTED_TARGET gstreamer-1.0)
 message("GSTREAMER_FOUND:" ${GSTREAMER_FOUND})
 message("GSTREAMER_LINK_LIBRARIES: " ${GSTREAMER_LINK_LIBRARIES})
 
-message("GST_INCLUDE_DIRS: " ${GST_INCLUDE_DIRS})
-message("GST_LIBRARIES: " ${GST_LIBRARIES})
+pkg_check_modules(GSTREAMER_AUDIO REQUIRED IMPORTED_TARGET gstreamer-audio-1.0)
+message("GSTREAMER_FOUND:" ${GSTREAMER_AUDIO_FOUND})
+message("GSTREAMER_LINK_LIBRARIES: " ${GSTREAMER_AUDIO_LINK_LIBRARIES})
 
 target_include_directories(${app_name} PRIVATE  ${GSTREAMER_INCLUDE_DIRS})
 target_link_libraries(${app_name} ${GSTREAMER_LINK_LIBRARIES})
+
+target_include_directories(${app_name} PRIVATE  ${GSTREAMER_AUDIO_INCLUDE_DIRS})
+target_link_libraries(${app_name} ${GSTREAMER_AUDIO_LINK_LIBRARIES})
