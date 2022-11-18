@@ -59,7 +59,7 @@ static void print_current_values (GstElement *pipeline) {
 }
 
 /* Process keyboard input */
-static gboolean handle_keyboard (GIOChannel *source, GIOCondition cond, CustomData *data) {
+static gboolean handle_keyboard (GIOChannel *source,__attribute__((unused)) GIOCondition cond, CustomData *data) {
   gchar *str = NULL;
 
   if (g_io_channel_read_line (source, &str, NULL, NULL, NULL) != G_IO_STATUS_NORMAL) {
