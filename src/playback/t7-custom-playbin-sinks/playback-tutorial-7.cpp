@@ -1,7 +1,9 @@
 #include <gst/gst.h>
 
 int main(int argc, char *argv[]) {
-  GstElement *pipeline, *bin, *equalizer, *convert, *sink;
+  GstElement *pipeline;
+  GstElement *bin, *equalizer, *convert, *sink;
+  GstElement *vbin, *vfilter, *vconvert, *vsink;
   GstPad *pad, *ghost_pad;
   GstBus *bus;
   GstMessage *msg;
@@ -17,7 +19,7 @@ int main(int argc, char *argv[]) {
   convert = gst_element_factory_make ("audioconvert", "convert");
   sink = gst_element_factory_make ("autoaudiosink", "audio_sink");
   if (!equalizer || !convert || !sink) {
-    g_printerr ("Not all elements could be created.\n");
+    g_printerr ("Not all audio elements could be created.\n");
     return -1;
   }
 
@@ -31,19 +33,41 @@ int main(int argc, char *argv[]) {
   gst_element_add_pad (bin, ghost_pad);
   gst_object_unref (pad);
 
+  vfilter = gst_element_factory_make("solarize", "vfilter");
+  vconvert = gst_element_factory_make("autovideoconvert", "vconvert");
+  vsink = gst_element_factory_make("autovideosink", "vsink");
+  if (!vfilter || !vconvert || !vsink) {
+    g_printerr ("Not all video elements could be created.\n");
+    return -1;
+  }
+
+  /* Create the sink bin, add the elements and link them */
+  vbin = gst_bin_new ("video_sink_bin");
+  gst_bin_add_many (GST_BIN (vbin), vfilter, vconvert, vsink, NULL);
+  gst_element_link_many (vfilter, vconvert, vsink, NULL);
+  pad = gst_element_get_static_pad (vfilter, "sink");
+  ghost_pad = gst_ghost_pad_new ("sink", pad);
+  gst_pad_set_active (ghost_pad, TRUE);
+  gst_element_add_pad (vbin, ghost_pad);
+  gst_object_unref (pad);
+
+
+
+
   /* Configure the equalizer */
   g_object_set (G_OBJECT (equalizer), "band1", (gdouble)-24.0, NULL);
   g_object_set (G_OBJECT (equalizer), "band2", (gdouble)-24.0, NULL);
 
   /* Set playbin's audio sink to be our sink bin */
-  g_object_set (GST_OBJECT (pipeline), "audio-sink", bin, NULL);
+  // g_object_set (GST_OBJECT (pipeline), "audio-sink", bin, NULL);
+  g_object_set (GST_OBJECT (pipeline), "video-sink", vbin, NULL);
 
   /* Start playing */
   gst_element_set_state (pipeline, GST_STATE_PLAYING);
 
   /* Wait until error or EOS */
   bus = gst_element_get_bus (pipeline);
-  msg = gst_bus_timed_pop_filtered (bus, GST_CLOCK_TIME_NONE, GST_MESSAGE_ERROR | GST_MESSAGE_EOS);
+  msg = gst_bus_timed_pop_filtered (bus, GST_CLOCK_TIME_NONE, static_cast<GstMessageType>(GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
 
   /* Free resources */
   if (msg != NULL)
