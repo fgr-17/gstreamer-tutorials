@@ -15,7 +15,7 @@ typedef struct _CustomData {
   gint buffering_level;
 } CustomData;
 
-static void got_location (GstObject *gstobject, GstObject *prop_object, GParamSpec *prop, gpointer data) {
+static void got_location (__attribute__((unused)) GstObject *gstobject, __attribute__((unused)) GstObject *prop_object, __attribute__((unused)) GParamSpec *prop, __attribute__((unused)) gpointer data) {
   gchar *location;
   g_object_get (G_OBJECT (prop_object), "temp-location", &location, NULL);
   g_print ("Temporary file: %s\n", location);
@@ -24,7 +24,7 @@ static void got_location (GstObject *gstobject, GstObject *prop_object, GParamSp
   /* g_object_set (G_OBJECT (prop_object), "temp-remove", FALSE, NULL); */
 }
 
-static void cb_message (GstBus *bus, GstMessage *msg, CustomData *data) {
+static void cb_message (__attribute__((unused))GstBus *bus, GstMessage *msg, CustomData *data) {
 
   switch (GST_MESSAGE_TYPE (msg)) {
     case GST_MESSAGE_ERROR: {
