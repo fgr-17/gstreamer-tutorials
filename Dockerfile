@@ -1,6 +1,8 @@
 FROM debian:stable-slim
 
-RUN apt-get update && apt-get install -y libgstreamer1.0-dev \
+RUN apt-get update && apt-get install -y make \
+cmake \
+libgstreamer1.0-dev \
 libgstreamer-plugins-base1.0-dev \
 libgstreamer-plugins-bad1.0-dev \
 gstreamer1.0-plugins-base \
